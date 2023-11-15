@@ -12,6 +12,7 @@ const Nhap_lieu = require('./Nhap_lieu')
 const CustomerCare = require("../crm/CustomerCare/CustomerCare")
 const CustomerStatus = require('../crm/Customer/CustomerStatus')
 const contractAI = require('../crm/Contract/ContractAI');
+const ZaloLogin = require('../crm/Marketing/ZaloLogin');
 router.use('/tool', ToolCRM)
 
 // khách hàng
@@ -45,4 +46,8 @@ router.use('/CustomerContact', CustomerContact);
 router.use('/nhaplieu', Nhap_lieu);
 
 router.use('/contractAI', contractAI);
+
+//liên kết zalo OA
+router.use('/zaloSocial', ZaloLogin);
+
 module.exports = router

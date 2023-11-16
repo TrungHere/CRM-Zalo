@@ -3,8 +3,9 @@ const functions = require('../../../services/functions')
 const HistoryZalo = require('../../../models/crm/Marketing/HistoryZalo');
 const ManagerZalo = require('../../../models/crm/Marketing/ManagerZalo');
 const ZaloSocial = require('zalo-sdk').ZaloSocial;
+require('dotenv').config()
 const googleMapsClient = require('@google/maps').createClient({
-  key: 'AIzaSyAIP0eQ3ptzjM-RDn9lOfX6VLDFDAFdrpM' // 'your API key here'
+  key: process.env.GOOGLE_MAPS_API_KEY // 'your API key here'
 });
 
 // exports.handleZaloError = async (options, verify) => {
@@ -184,23 +185,29 @@ exports.takeLatLong = async (req, res) => {
 try{
     const address = req.body.address
     if(address){
-        console.log(address)
         googleMapsClient.geocode({
           address: "so 1 tran nguyen dan"
         }, function(err, response) {
           if (err) {
-            // return functions.success(response.json.results , "Lấy thành công");
-            console.log('Có lỗi xảy ra:', err);
+            // console.log('Có lỗi xảy ra:', err);
+             return functions.setError(res, err.message)
+
           } else if (response.json.status === 'OK') {
             const location = response.json.results[0].geometry.location
-            console.log('API key hoạt động bình thường', 'Vĩ độ:', location.lat ,'Kinh độ:', location.lng );
+            const lat = location.lat
+            const long = location.lng
+            return functions.success(res , 'API key hoạt động bình thường', {'Vĩ độ:': lat ,'Kinh độ:': long } )
+
           }else{
             // return functions.setError(res, err.message)
-            console.log('Có vấn đề với API key:', response.json.status);
+            // console.log('Có vấn đề với API key:', response.json.status);
+            return functions.setError(res, "có vấn đề về api key")
           }
         })
+    }else{
+      return functions.setError(res, "Nhập thiếu trường")
+
     }
-    // return functions.setError(res, "Nhập thiếu trường")
     }catch(e){
         console.log(e)
         return functions.setError(res, e.message)
@@ -216,18 +223,22 @@ try{
           latlng: [lat, long],
         }, function(err, response) {
             if (err) {
-                // return functions.success(response.json.results , "Lấy thành công");
-                console.log('Có lỗi xảy ra:', err);
+              // console.log('Có lỗi xảy ra:', err);
+              return functions.setError(res, err.message)
               } else if (response.json.status === 'OK') {
-                // const location = response.json.results[0]
-                console.log('API key hoạt động bình thường', response.json.results[0] );
+                const location = response.json.results[0]
+                // console.log('API key hoạt động bình thường', response.json.results[0] );
+                return functions.success(res , 'API key hoạt động bình thường', {"Địa chỉ" : location } )
               }else{
-                // return functions.setError(res, err.message)
-                console.log('Có vấn đề với API key:', response.json.status);
+                 // return functions.setError(res, err.message)
+                // console.log('Có vấn đề với API key:', response.json.status);
+                return functions.setError(res, "có vấn đề về api key")
               }
         })
-    }
-    // return functions.setError(res, "Nhập thiếu trường")
+      }else{
+        return functions.setError(res, "Nhập thiếu trường")
+  
+      }
     
     }catch(e){
         console.log(e)

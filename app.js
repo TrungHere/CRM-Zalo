@@ -167,7 +167,7 @@ AppTimviec.listen(3001, () => {
     console.log('Timviec365 app is running on port 3001');
 });
 AppTimviec.on('error', (error) => {
-    console.error('Error occurred while listening on QLTS port:', error);
+    console.error('Error occurred while listening on TimViec port:', error);
 });
 // Raonhanh
 // AppRaonhanh.listen(3004, () => {

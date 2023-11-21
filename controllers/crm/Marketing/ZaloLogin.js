@@ -3,6 +3,7 @@ const functions = require('../../../services/functions')
 const HistoryZalo = require('../../../models/crm/Marketing/HistoryZalo');
 const ManagerZalo = require('../../../models/crm/Marketing/ManagerZalo');
 const ZaloSocial = require('zalo-sdk').ZaloSocial;
+const FB = require('fb');
 require('dotenv').config()
 const googleMapsClient = require('@google/maps').createClient({
   key: process.env.GOOGLE_MAPS_API_KEY // 'your API key here'
@@ -246,3 +247,32 @@ try{
     }
 
 }
+
+
+
+exports.testAPIfb = async (req, res) => {
+  try{
+
+FB.options({version: 'v18.0'});
+FB.setAccessToken('your access token');//your access token
+
+FB.api('/me', { fields: 'id,name' }, function (res) {
+if(!res || res.error) {
+console.log(!res ? 'error occurred' : res.error);
+return;
+}
+console.log(res.id);
+console.log(res.name);
+});
+
+
+}catch(e){
+  console.log(e)
+  return functions.setError(res, e.message)
+}
+}
+// You can also use the fb.getLoginUrl and fb.getLoginStatus methods for authentication
+
+// Note: Make sure to handle errors and edge cases appropriately in a production environment.
+
+// age_range,birthday,about,education

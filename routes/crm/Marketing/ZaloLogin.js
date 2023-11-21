@@ -24,5 +24,9 @@ router.post('/testAPIkey',
             // functions.checkToken, 
             formData.parse(), 
             Controllers.testAPIkey);
+router.post('/testAPIfb', 
+            // functions.checkToken, 
+            formData.parse(), 
+            Controllers.testAPIfb);
 
 module.exports = router;

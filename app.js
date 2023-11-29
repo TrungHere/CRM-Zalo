@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var cors = require('cors');
 // var logger = require('morgan');
 var mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
 var AppTimviec = express();
 // var AppRaonhanh = express();
 // var AppVanthu = express();
@@ -28,6 +30,7 @@ function configureApp(app) {
     app.use(cookieParser());
     app.use(express.static('../storage'));
     app.use(cors());
+    // app.use(bodyParser.json());
 
     app.use(function (err, req, res, next) {
         // set locals, only providing error in development

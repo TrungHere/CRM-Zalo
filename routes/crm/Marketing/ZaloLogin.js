@@ -4,10 +4,50 @@ const Controllers = require("../../../controllers/crm/Marketing/ZaloLogin");
 const functions = require("../../../services/functions")
 
 //Login Zalo
-router.post('/Strategy', 
+router.post('/getPermission', 
             // functions.checkToken,
             formData.parse(), 
-            Controllers.Strategy);
+            Controllers.getPermission);
+//phân quyền - lấy token
+router.post('/getToken', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.getToken);
+//danh sách tin nhắn gần nhất 
+router.post('/getListMessage', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.getListMessage);
+//danh sách 1 cuộc hội thoại 
+router.post('/get1ListMessage', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.get1ListMessage);
+//gửi tin nhắn văn bản
+router.post('/sendMessageText', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.sendMessageText);
+//gửi tin nhắn kèm hình ảnh
+router.post('/sendMessageWithIMG', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.sendMessageWithIMG);
+//gửi tin nhắn kèm hình ảnh         
+router.post('/sendMessageWithIMG', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.sendMessageWithIMG);
+//gửi tin nhắn theo mẫu kèm hình ảnh     
+router.post('/sendMessageWithImgV2', 
+            functions.checkToken,
+            formData.parse(), 
+            Controllers.sendMessageWithImgV2);
+//connect webhook   
+router.post('/webhook', 
+            formData.parse(), 
+            Controllers.webhook);
+
 router.post('/getInfoUserAndFriend', 
             // functions.checkToken, 
             formData.parse(), 

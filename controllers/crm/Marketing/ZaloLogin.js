@@ -6,6 +6,7 @@ const ZaloOAPermission = require('../../../models/crm/Marketing/ZaloOAPermission
 const ZaloSocial = require('zalo-sdk').ZaloSocial;
 const FB = require('fb');
 const { constants } = require('fs');
+const crypto = require('crypto');
 require('dotenv').config()
 const googleMapsClient = require('@google/maps').createClient({
   key: process.env.GOOGLE_MAPS_API_KEY // 'your API key here'
@@ -255,32 +256,63 @@ try{
 
 exports.webhook = async (req, res) => {
   try{
-    const secret_key = "aXHoSlryZXxPMXV1koOm"
-    const response = await axios({// Lấy dữ liệu từ Zalo Server
-      method: "post",
-      url: `https://hungha365.com/`,
-      data: {
-        "app_id": "2474451999345960065",
-        "user_id_by_app": "5226391021553129796",
-        "event_name": "user_send_text",
-        "timestamp": "1701233032578",
-        "sender": {
-          "id": "2623188345245070594"
-        },
-        "recipient": {
-          "id": "579745863508352884"
-        },
-        "message": {
-          "msg_id": "This is message id",
-          "text": "This is testing message"
-        }
-      },
-      headers: {
-          "Content-Type": "application/json",
-          "secret_key": secret_key
+    const OAsecretKey = "aXHoSlryZXxPMXV1koOm"
+    const appID = "2474451999345960065"
+    const userId = req.user.data.idQLC;
+    const com_id = req.user.data.com_id;
+    // console.log(req.body)
+    // console.log(to_id,message)
+      const check = await ZaloOAPermission.findOne({
+        idQLC : Number(userId),
+        com_id : Number(com_id),
+      }).lean()
+      if(check){
+          let access_token = check.access_token
+          const raw_verify = appID + JSON.stringify(req.body) + req.body.timestamp + OAsecretKey;
+          const mac = crypto.createHash('sha256').update(raw_verify).digest('hex');
+          const response = await axios({// Lấy dữ liệu từ Zalo Server
+            method: "post",
+            url: `https://hungha365.com/`,
+            data: req.body,
+            headers: {
+                "Content-Type": "application/json",
+                "X-ZEvent-Signature": mac,
+                "access_token": access_token
+            }
+          })
+          console.log('Received data:', response.data);
       }
-    })
-  console.log('Received data:', response.data);
+    
+
+  // Xử lý dữ liệu ở đây
+  // ...
+
+  // res.json({ message: 'Webhook received successfully' });
+    
+}catch(e){
+  console.log(e)
+  return functions.setError(res, e.message)
+}
+}
+exports.webhook = async (req, res) => {
+  try{
+    const OAsecretKey = "aXHoSlryZXxPMXV1koOm"
+    const appID = "2474451999345960065"
+
+
+          const raw_verify = appID + JSON.stringify(req.body) + req.body.timestamp + OAsecretKey;
+          const mac = crypto.createHash('sha256').update(raw_verify).digest('hex');
+          // const response = await axios({// Lấy dữ liệu từ Zalo Server
+          //   method: "post",
+          //   url: `https://hungha365.com/`,
+          //   data: req.body,
+          //   headers: {
+          //       "Content-Type": "application/json",
+          //       "X-ZEvent-Signature": mac,
+          //   }
+          // })
+          console.log('Received data:', req.body);
+    
 
   // Xử lý dữ liệu ở đây
   // ...
@@ -302,15 +334,20 @@ exports.getPermission = async (req, res) => {
   return functions.setError(res, e.message)
 }
 }
-exports.updateID_OA = async (req, res) => {
+exports.checkID = async (req, res) => {
   try{
     const id_oa = req.body.id_oa;
-    
-    //Ktra
-    const check = await ZaloOAPermission.findOne({
-      idQLC : Number(userId),
-      com_id : Number(com_id),
-    }).select("code").lean()
+    const access_token = 'LyvNBFDuRWvHmreWyNLY3bJ7No_oQm5B4fbu1AnvCdrhZsqGcpGcSN7XOHVI9nXJ2T9a7jOpAZannb9UqW8T0X7PL4RjBXqN3EPSSTmUEISs_LP-n2iQNIJwG0J-JXn-0A0ZKVHsUX1Uc2Srf6rGRLshBZsa6nfaUTnd7PauNMvymnWjW7HM0cgy2bkCK6uVJx46V9jWMJ5NiJWJYW9XPsZVNmQF7W1eBCew3ESWKayWqJ9eWYaDJ7RzTocW5pOFOFm2USKIFJqwoNb6ucP34aU385EYO5GEQQW-STSJM2eMfH9Vn79yVIUVEmRnMWz5Jvul8vb9JKH7WN82Wb9BS5I5TWksFn4nRUH_TCis7pGqntPlo3K88MpGI0-oDN9-LUGyKFOZ22GIxqHGqZyk2aGvau8D5_1YQ0y'
+    const response = await axios({
+      method: "get",
+      url: `https://openapi.zalo.me/v2.0/oa/getprofile?data=%7B%22user_id%22%3A%22${id_oa}%22%7D`,
+      headers: {
+          "Content-Type": "application/json",
+          "access_token": access_token
+      }
+    })
+    console.log(response?.data?.data)
+
 }catch(e){
   console.log(e)
   return functions.setError(res, e.message)
@@ -504,7 +541,7 @@ exports.sendFile = async (req, res, next) => {
         com_id : Number(com_id),
       }).lean()
       if(check){
-        const access_token = check.access_token
+        let access_token = check.access_token
         const response = await axios({
             method: "post",
             url: `https://openapi.zalo.me/v3.0/oa/message/cs`,
@@ -526,7 +563,7 @@ exports.sendFile = async (req, res, next) => {
                 "access_token": access_token
             }
         });
-        if (response.data?.error == -124) {
+        if (response.data?.error == -216) {
             responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
             if (responseRefreshToken.err) {
                 return functions.setError(res, responseRefreshToken.message);
@@ -590,7 +627,7 @@ exports.sendMessageWithImgV2 = async (req, res, next) => {
         com_id : Number(com_id),
       }).lean()
       if(check){
-        const access_token = check.access_token
+        let access_token = check.access_token
         const response = await axios({
             method: "post",
             url: `https://openapi.zalo.me/v3.0/oa/message/cs`,
@@ -619,7 +656,7 @@ exports.sendMessageWithImgV2 = async (req, res, next) => {
                 "access_token": access_token
             }
         });
-        if (response.data?.error == -124) {
+        if (response.data?.error == -216) {
           responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
             if (responseRefreshToken.err) {
                 return functions.setError(res, responseRefreshToken.message);
@@ -690,7 +727,7 @@ exports.sendMessageWithIMG = async (req, res, next) => {
         com_id : Number(com_id),
       }).lean()
       if(check){
-        const access_token = check.access_token
+        let access_token = check.access_token
         const response = await axios({
             method: "post",
             url: `https://openapi.zalo.me/v3.0/oa/message/cs`,
@@ -719,7 +756,7 @@ exports.sendMessageWithIMG = async (req, res, next) => {
                 "access_token": access_token
             }
         });
-        if (response.data?.error == -124) {
+        if (response.data?.error == -216) {
           responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
             if (responseRefreshToken.err) {
                 return functions.setError(res, responseRefreshToken.message);
@@ -789,7 +826,7 @@ exports.sendMessageText = async (req, res, next) => {
         com_id : Number(com_id),
       }).lean()
       if(check){
-        const access_token = check.access_token
+        let access_token = check.access_token
         const response = await axios({
             method: "post",
             url: `https://openapi.zalo.me/v3.0/oa/message/cs`,
@@ -806,7 +843,7 @@ exports.sendMessageText = async (req, res, next) => {
                 "access_token": access_token
             }
         });
-        if (response.data?.error == -124) {
+        if (response.data?.error == -216) {
           responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
             if (responseRefreshToken.err) {
                 return functions.setError(res, responseRefreshToken.message);
@@ -863,7 +900,7 @@ exports.get1ListMessage = async (req, res, next) => {
         com_id : Number(com_id),
       }).lean()
       if(check){
-        const access_token = check.access_token
+        let access_token = check.access_token
         const response = await axios({
             method: "get",
             url: `https://openapi.zalo.me/v2.0/oa/conversation?data=%7B%22offset%22%3A${page}%2C%22user_id%22%3A${to_id}%2C%22count%22%3A${pageSize}%7D`,
@@ -873,7 +910,7 @@ exports.get1ListMessage = async (req, res, next) => {
             }
         });
         // console.log(response.data)
-        if (response.data?.error == -124) {
+        if (response.data?.error == -216) {
           responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
             if (responseRefreshToken.err) {
                 return functions.setError(res, responseRefreshToken.message);
@@ -909,6 +946,100 @@ exports.get1ListMessage = async (req, res, next) => {
       return functions.setError(res, error.message);
   }
 }
+exports.getListUserCare = async (req, res, next) => {
+  try {   
+    const page = req.body.page || 0;
+    const pageSize = req.body.pageSize || 10;
+    const userId = req.user.data.idQLC;
+    const com_id = req.user.data.com_id;
+    const to_id = req.body.to_id ;
+
+      const check = await ZaloOAPermission.findOne({
+        idQLC : Number(userId),
+        com_id : Number(com_id),
+      }).lean()
+      if(check){
+        let access_token = check.access_token
+        const response = await axios({
+            method: "get",
+            url: `https://openapi.zalo.me/v2.0/oa/getfollowers?data=%7B%22offset%22%3A${page}%2C%22count%22%3A${pageSize}%7D`,
+            headers: {
+                "Content-Type": "application/json",
+                "access_token": access_token
+            }
+        });
+        // console.log(response.data)
+        if (response.data?.error == -216) {
+          responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
+            if (responseRefreshToken.err) {
+                return functions.setError(res, responseRefreshToken.message);
+            }
+            else {
+                access_token = responseRefreshToken.message
+            }
+            const response = await axios({
+                method: "get",
+                url: `https://openapi.zalo.me/v2.0/oa/getfollowers?data=%7B%22offset%22%3A${page}%2C%22count%22%3A${pageSize}%7D`,
+                headers: {
+                    "Content-Type": "application/json",
+                    "access_token": access_token
+                }
+            });
+            if (!response?.data?.data) {
+                return functions.setError(res, { message: response.data.message });
+            }
+        }
+
+        const followers = response?.data?.data?.followers
+        // console.log(followers);
+        let userIds = []
+        if(followers) userIds = followers.map(item => item.user_id);
+        // console.log(userIds);
+        let data = []
+        for(let i = 0 ; i < userIds.length ; i++){
+          const respon = await axios({
+            method: "get",
+            url: `https://openapi.zalo.me/v2.0/oa/getprofile?data=%7B%22user_id%22%3A%22${userIds[i]}%22%7D`,
+            headers: {
+                "Content-Type": "application/json",
+                "access_token": access_token
+            }
+        });
+        // console.log(respon?.data)
+        if(respon?.data?.error == 0) {
+          data.push(respon?.data)
+        //   const dataUser = respon?.data?.data
+        //   console.log(dataUser)
+        //   await axios({
+        //     method: 'post',
+        //     url: 'http://localhost:9007/api/conversations/createUserZalo',
+        //     data: {
+        //       user_id:dataUser?.user_id,
+        //       oa_id:"579745863508352884",
+        //       app_id:"2474451999345960065",
+        //       userName:dataUser?.display_name,
+        //       avatar:dataUser?.avatar,
+        //     },
+        //     headers: { 'Content-Type': 'multipart/form-data' },
+        // });
+        }
+        }
+        return functions.success(
+          res, 
+          "Lấy danh sách người dùng quan tâm thành công", 
+        { data: data }
+        );
+
+      }else{
+        return functions.setError(res, "Người dùng chưa được cấp quyền Zalo OA");
+
+      }
+     
+  } catch (error) {
+      console.log(error);
+      return functions.setError(res, error.message);
+  }
+}
 exports.getListMessage = async (req, res, next) => {
   try {   
     const page = req.body.page || 0;
@@ -920,7 +1051,7 @@ exports.getListMessage = async (req, res, next) => {
         com_id : Number(com_id),
       }).lean()
       if(check){
-        const access_token = check.access_token
+        let access_token = check.access_token
         const response = await axios({
             method: "get",
             url: `https://openapi.zalo.me/v2.0/oa/listrecentchat?data=%7B%22offset%22%3A${page}%2C%22count%22%3A${pageSize}%7D`,
@@ -930,7 +1061,7 @@ exports.getListMessage = async (req, res, next) => {
             }
         });
         // console.log(response.data)
-        if (response.data?.error == -124) {
+        if (response.data?.error == -216) {
           responseRefreshToken = await refreshTokenZalo(check.app_id, check.secret_key, check.refresh_token, check.com_id, check.idQLC)
             if (responseRefreshToken.err) {
                 return functions.setError(res, responseRefreshToken.message);

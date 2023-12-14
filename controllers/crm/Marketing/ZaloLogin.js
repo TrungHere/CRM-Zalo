@@ -337,7 +337,7 @@ exports.getPermission = async (req, res) => {
 exports.checkID = async (req, res) => {
   try{
     const id_oa = req.body.id_oa;
-    const access_token = 'LyvNBFDuRWvHmreWyNLY3bJ7No_oQm5B4fbu1AnvCdrhZsqGcpGcSN7XOHVI9nXJ2T9a7jOpAZannb9UqW8T0X7PL4RjBXqN3EPSSTmUEISs_LP-n2iQNIJwG0J-JXn-0A0ZKVHsUX1Uc2Srf6rGRLshBZsa6nfaUTnd7PauNMvymnWjW7HM0cgy2bkCK6uVJx46V9jWMJ5NiJWJYW9XPsZVNmQF7W1eBCew3ESWKayWqJ9eWYaDJ7RzTocW5pOFOFm2USKIFJqwoNb6ucP34aU385EYO5GEQQW-STSJM2eMfH9Vn79yVIUVEmRnMWz5Jvul8vb9JKH7WN82Wb9BS5I5TWksFn4nRUH_TCis7pGqntPlo3K88MpGI0-oDN9-LUGyKFOZ22GIxqHGqZyk2aGvau8D5_1YQ0y'
+    const access_token = '6hErRFw5kGuSlhXW_8Yr3XcwlM__bizJ7-6WReUvrqW4-ffvbRJOPYU6rrM7j8ra3Tlv0fMjyXfqmQOIz_gk7N2k_GNNohycCUN0FOcmYYWOXe98YEcBMmI5rsI-zfS1LPB2OCUeedrIpyyOoxt03N-Cko_WpBH1TARZREENkWnaeEHer9E3N4h5z3_FW80hNUVnAkkfXGTDtTPfzxV326E3WplgkTubNlFJ4BkmemCjnzenYBIXCYd0xn2Ncw0f5zVy68cFgW42sTivfksCFLZTu0lRY9afOB_I5kFie1jeYFadwTkl9m-9ypoHkAO65E_E6fBTdJGvffCwskRx27cIgsVY-DXwVik_VFkMx6DQvPzzvQBLGM34gtZMzwLWCh_eOQxodNyieC4SoiM80cFqXcNJ0ZXN_P-_3m'
     const response = await axios({
       method: "get",
       url: `https://openapi.zalo.me/v2.0/oa/getprofile?data=%7B%22user_id%22%3A%22${id_oa}%22%7D`,
@@ -346,7 +346,7 @@ exports.checkID = async (req, res) => {
           "access_token": access_token
       }
     })
-    console.log(response?.data?.data)
+    console.log(response?.data)
 
 }catch(e){
   console.log(e)
@@ -1005,14 +1005,14 @@ exports.getListUserCare = async (req, res, next) => {
                 "access_token": access_token
             }
         });
-        // console.log(respon?.data)
+        console.log(respon?.data)
         if(respon?.data?.error == 0) {
           data.push(respon?.data)
         //   const dataUser = respon?.data?.data
         //   console.log(dataUser)
         //   await axios({
         //     method: 'post',
-        //     url: 'http://localhost:9007/api/conversations/createUserZalo',
+        //     url: 'http://210.245.108.202:9000/api/conversations/createUserZalo',
         //     data: {
         //       user_id:dataUser?.user_id,
         //       oa_id:"579745863508352884",

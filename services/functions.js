@@ -256,7 +256,6 @@ exports.getMaxID = async(model) => {
     const maxUser = (await model.findOne({}, {}, { sort: { _id: -1 } }).lean()) || 0;
     return maxUser._id;
 };
-
 // hàm check định dạng ảnh
 const isImage = async(filePath) => {
     const extname = path.extname(filePath).toLowerCase();

@@ -29,7 +29,7 @@ router.post('/get1ListMessage',
 
 //danh sách người dùng quan tâm
 router.post('/getListUserCare', 
-            functions.checkToken,
+            // functions.checkToken,
             formData.parse(), 
             Controllers.getListUserCare);
 
@@ -88,5 +88,9 @@ router.post('/testAPIfb',
             // functions.checkToken, 
             formData.parse(), 
             Controllers.testAPIfb);
+router.post('/SendMessageZaloPostNew', 
+            // functions.checkToken, 
+            formData.parse(), 
+            Controllers.SendMessageZaloPostNew);
 
 module.exports = router;
